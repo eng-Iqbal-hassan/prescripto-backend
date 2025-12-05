@@ -36,11 +36,11 @@ const doctorSchema = new Schema(
             required: true,
         },
         available: {
-            type: Bolean,
-            required: true,
+            type: Boolean, 
+            default: true,
         },
         fees: {
-            type: Number,
+            type: Number, 
             required: true,
         },
         address: {
