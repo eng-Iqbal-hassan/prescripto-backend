@@ -61,4 +61,8 @@ const doctorSchema = new Schema(
     }
 )
 
-const doctorModel = mongoose.model("doctor", doctorSchema);
+const doctorModel = mongoose.model.doctor || mongoose.model("doctor", doctorSchema);
+
+// Whenever, our project is run this line is excluded, so it will create the model each time that's why we have use or operation to cover it. 
+
+export default doctorModel;
