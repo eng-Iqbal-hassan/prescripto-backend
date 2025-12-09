@@ -29,8 +29,8 @@ const userSchema = new Schema(
             default: "NOt Selected"
         },
         dob: {
-            type: Number,
-            default: null,
+            type: String,
+            default: "Not Selected Yet",
         }, 
         phone: {
             type: String,
