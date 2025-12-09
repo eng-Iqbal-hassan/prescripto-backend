@@ -29,8 +29,8 @@ const userSchema = new Schema(
             default: "NOt Selected"
         },
         dob: {
-            type: NUmber,
-            default: "Not Selected",
+            type: Number,
+            default: null,
         }, 
         phone: {
             type: String,
@@ -39,6 +39,6 @@ const userSchema = new Schema(
     }
 )
 
-const userModel = mongoose.model.user || mongoose.model("user", doctorSchema);
+const userModel = mongoose.model.user || mongoose.model("user", userSchema);
 
 export default userModel;

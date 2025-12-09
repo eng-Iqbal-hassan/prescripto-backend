@@ -5,6 +5,7 @@ import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
 import adminRouter from "./routes/adminRoute.js";
 import doctorRouter from "./routes/doctorRoute.js";
+import userRouter from "./routes/userRoutes.js";
 
 // app config;
 
@@ -22,7 +23,8 @@ app.use(cors());
 
 app.use('/api/admin',adminRouter)
 // FRom here, whenever we will hit the endpoint localhost:4000/api/admin/add-doctor. From here it will go the admin routes and will chase the function which last parm is add-doctor. This function is addDoctor in adminController. In short on hit of this mentioned url, addDoctor function will be executed.
-app.use('/api/doctor',doctorRouter)
+app.use('/api/doctor',doctorRouter);
+app.use('/api/user',userRouter);
 
 app.get("/", (req,res) => {
     res.send("API is working greatly")
