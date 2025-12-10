@@ -3,6 +3,8 @@
 import validator from "validator";
 import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
+import doctorModel from "../models/doctorModel.js";
+import appointmentModel from "../models/appointmentModel.js";
 import jwt from "jsonwebtoken";
 import {v2 as cloudinary} from "cloudinary";
 
@@ -128,4 +130,60 @@ const updateProfile = async (req,res) => {
     }
 }
 
-export {registerUser,loginUser,getProfile, updateProfile};
+// API to Book Appointment
+
+const bookAppointment = async (req,res) => {
+    try {
+        const { userId, docId, slotDate, slotTime } = req.body;
+    
+        const docData = await doctorModel.findById(userId).select("-password");
+    
+        if(!docData.available) {
+            return res.json({success: false, message: "Doctor is not available"})
+        }
+    
+        let slots_booked = docData.slots_booked; // This will give us the all slots of doctor
+    
+        // checking for slots availabiliity
+        if(slots_booked[slotDate]) {
+            if(slots_booked[slotDate].includes(slotTime)) {
+                return res.json({success: false, message: "slot is not available"})
+            } else {
+                slots_booked[slotDate].push(slotTime)
+            }
+        } else {
+            slots_booked[slotDate] = [];
+            slots_booked[slotDate].push(slotTime)
+        }
+    
+        const userData = await userModel.findById(userId).select('-password')
+    
+        delete docData.slots_booked;
+        // We are removing this from doctor data, The reason is taht when we save the docData in appointmentData object, we do not want extra information
+    
+        const appointmentData = {
+            userId,
+            docId, 
+            userData,
+            docData, // and here we have deleted the slots_booked property 
+            slotTime,
+            slotDate,
+            date: Date.now()    
+        }
+    
+        const newAppointment = new appointmentModel(appointmentData);
+        newAppointment.save();
+
+        // save new slots data in doctor data back
+
+        await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+
+        return res.json({success: true, message: "Appointment Booked"})
+    } catch (error) {
+        console.log(error)
+        return res.json({success: false, message: error.message})
+    }
+
+}
+
+export {registerUser,loginUser,getProfile, updateProfile, bookAppointment};
