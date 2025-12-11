@@ -136,7 +136,7 @@ const bookAppointment = async (req,res) => {
     try {
         const { userId, docId, slotDate, slotTime } = req.body;
     
-        const docData = await doctorModel.findById(userId).select("-password");
+        const docData = await doctorModel.findById(docId).select("-password");
     
         if(!docData.available) {
             return res.json({success: false, message: "Doctor is not available"})
@@ -168,7 +168,9 @@ const bookAppointment = async (req,res) => {
             docData, // and here we have deleted the slots_booked property 
             slotTime,
             slotDate,
-            date: Date.now()    
+            amount: docData.fees, 
+            userDate: Date.now(),
+            docDate: Date.now(),
         }
     
         const newAppointment = new appointmentModel(appointmentData);

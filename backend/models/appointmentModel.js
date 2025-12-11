@@ -18,19 +18,17 @@ const appointmentSchema = new mongoose.Schema({
         required: true
     },
     userDate: {
-        type: Object, 
+        type: Date,
+        default: Date.now(), 
         required: true
     },
     docDate: {
-        type: Object, 
+        type: Date, 
+        default: Date.now(),
         required: true
     },
     amount: {
         type: Number,
-        required: true
-    },
-    date: {
-        type: String,
         required: true
     },
     cancelled: {
