@@ -200,4 +200,51 @@ const listAppointments = async (req,res) => {
     }
 }
 
-export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments};
+// API to cancel appointment
+
+const cancelAppointment = async (req,res) => {
+    try {
+        const {userId, appointmentId} = req.body;
+        // We will get the userId from authUser Middelware and appointmentId from request body
+
+        // After that we will get the appointment data using this appointment id
+
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
+        // Verify appointment user
+
+        if(appointmentData.userId !== userId) {
+            return res.json({success: false, message: "Unauthorized action"})
+        }
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled: true})
+
+        // After that if the appointment cancelled is true then this slot time will be available
+        // so we have to make the change in doctor slot_booked object
+        // Releasing doctor slot
+
+        const {docId, slotDate, slotTime} = appointmentData;
+
+        const doctorData = await doctorModel.findById(docId);
+
+        let slots_booked = doctorData.slots_booked;
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+
+        // Here we are matching the slotTime in our slots_Booked object with the provided slotTime and then remove that time from this object,
+        
+        await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+        
+        // After that we have updated our doctor and In this way, we have released doctor slot
+
+        res.json({success: true, message: "appointment is cancelled"})
+
+
+
+    } catch (error) {
+       console.log(error);
+       res.json({success: false, message: error.message}) 
+    }
+}
+
+export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment};
