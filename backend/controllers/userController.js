@@ -169,8 +169,7 @@ const bookAppointment = async (req,res) => {
             slotTime,
             slotDate,
             amount: docData.fees, 
-            userDate: Date.now(),
-            docDate: Date.now(),
+            date: Date.now(),
         }
     
         const newAppointment = new appointmentModel(appointmentData);
@@ -188,4 +187,17 @@ const bookAppointment = async (req,res) => {
 
 }
 
-export {registerUser,loginUser,getProfile, updateProfile, bookAppointment};
+// API to get user appoingtments 
+
+const listAppointments = async (req,res) => {
+    try {
+        const {userId} = req.body;
+        const appointments = await appointmentModel.find({userId});
+        res.json({success: true, appointments})
+    } catch (error) {
+        console.log(error)
+        return res.json({success: false, message: error.message})
+    }
+}
+
+export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments};

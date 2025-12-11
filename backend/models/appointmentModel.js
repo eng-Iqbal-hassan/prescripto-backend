@@ -9,6 +9,7 @@ const appointmentSchema = new mongoose.Schema({
         type: String, 
         required: true
     },
+
     slotDate: {
         type: String, 
         required: true
@@ -17,14 +18,12 @@ const appointmentSchema = new mongoose.Schema({
         type: String, 
         required: true
     },
-    userDate: {
-        type: Date,
-        default: Date.now(), 
+    userData: {
+        type: Object,
         required: true
     },
-    docDate: {
-        type: Date, 
-        default: Date.now(),
+    docData: {
+        type: Object, 
         required: true
     },
     amount: {
@@ -42,6 +41,10 @@ const appointmentSchema = new mongoose.Schema({
     isCompleted: {
         type: Boolean,
         default: false,
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
 })
 
