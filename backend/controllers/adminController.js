@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken"
+import appointmentModel from "../models/appointmentModel.js";
 
 // API for adding doctor
 const addDoctor = async(req, res) => {
@@ -84,7 +85,6 @@ const loginAdmin = async(req,res) => {
 }
 
 // API to get All doctors list for admin pannel
-
 const allDoctors = async (req,res) => {
     try {
         const doctors = await doctorModel.find({}).select('-password')
@@ -95,5 +95,60 @@ const allDoctors = async (req,res) => {
     }
 }
 
-export {addDoctor,loginAdmin, allDoctors}; // named export
+// API to get all Appointment List
+
+const appointmentsAdmin = async(req,res) => {
+    try {
+        const appointments = await appointmentModel.find({});
+        res.json({success: true, appointments})
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message})
+    }
+}
+
+// API to cancel appointment
+
+const appointmentCancel = async (req,res) => {
+    try {
+        const {appointmentId} = req.body;
+        // We will get the userId from authUser Middelware and appointmentId from request body
+
+        // After that we will get the appointment data using this appointment id
+
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled: true})
+
+        // After that if the appointment cancelled is true then this slot time will be available
+        // so we have to make the change in doctor slot_booked object
+        // Releasing doctor slot
+
+        const {docId, slotDate, slotTime} = appointmentData;
+
+        const doctorData = await doctorModel.findById(docId);
+
+        let slots_booked = doctorData.slots_booked;
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+
+        // Here we are matching the slotTime in our slots_Booked object with the provided slotTime and then remove that time from this object,
+        
+        await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+        
+        // After that we have updated our doctor and In this way, we have released doctor slot
+
+        res.json({success: true, message: "appointment is cancelled"})
+
+
+
+    } catch (error) {
+       console.log(error);
+       res.json({success: false, message: error.message}) 
+    }
+} 
+
+
+export {addDoctor,loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel}; // named export
 // controllers will be given named export.

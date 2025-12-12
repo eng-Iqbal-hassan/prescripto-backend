@@ -246,7 +246,7 @@ const cancelAppointment = async (req,res) => {
        console.log(error);
        res.json({success: false, message: error.message}) 
     }
-}
+} 
 
 // Online payment method --> we are going to use razor pay as online payment gateway. 
 
@@ -307,6 +307,8 @@ const verifyRazorpay = async (req,res) => {
         res.json({success: false, message: error.message}) 
     }
 }
+
+// After these things, we will move to the adminController where we will create the API to show the appointments of all users in admin panel. 
 
 
 export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, paymentRazorpay, verifyRazorpay};
