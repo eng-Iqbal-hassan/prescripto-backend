@@ -264,7 +264,7 @@ const razorpayInstance = new razorpay({
 const paymentRazorpay = async (req,res) => {
     try {
         const { appointmentId } = req.body;
-        const appointmentData = new appointmentModel.findById(appointmentId);
+        const appointmentData = await appointmentModel.findById(appointmentId);
         if(!appointmentData || appointmentData.cancelled) {
             return res.json({success: true, message: "Appointment Not Found or Cancelled"})
         }
@@ -286,5 +286,27 @@ const paymentRazorpay = async (req,res) => {
 
 }
 
+// API to verify the payment of razorpay
 
-export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, paymentRazorpay};
+const verifyRazorpay = async (req,res) => {
+    try {
+        const {razorpay_order_id} = req.body;
+        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+
+        console.log(orderInfo);
+        // Here,When the payment is made, in console we get the status paid and we also have the receipt which we have created using appointment Id in above controller so using these two things we can change the property payment true. 
+        if(orderInfo.status === "paid") {
+            await appointmentModel.findByIdAndUpdate(orderInfo.receipt,{payment: true});
+            res.json({success: true, message: "Payment Successful"})
+        } else {
+            res.json({success: false, message: "Payment failed"})
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message}) 
+    }
+}
+
+
+export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, paymentRazorpay, verifyRazorpay};
