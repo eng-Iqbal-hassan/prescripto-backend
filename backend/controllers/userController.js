@@ -7,6 +7,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import jwt from "jsonwebtoken";
 import {v2 as cloudinary} from "cloudinary";
+import razorpay from "razorpay";
 
 // API to register user (Sign Up a User). 
 
@@ -247,4 +248,43 @@ const cancelAppointment = async (req,res) => {
     }
 }
 
-export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment};
+// Online payment method --> we are going to use razor pay as online payment gateway. 
+
+// For it we install the package razorpay 
+
+// API to make payment of appointment using razorpay
+
+// initialize the razor pay instance
+ 
+const razorpayInstance = new razorpay({
+    key_id:process.env.RAZORPAY_KEY_ID,
+    key_secret:process.env.RAZORPAY_KEY_SECRET 
+})
+
+const paymentRazorpay = async (req,res) => {
+    try {
+        const { appointmentId } = req.body;
+        const appointmentData = new appointmentModel.findById(appointmentId);
+        if(!appointmentData || appointmentData.cancelled) {
+            return res.json({success: true, message: "Appointment Not Found or Cancelled"})
+        }
+    
+        // Creating options for razor-pay payments
+        const options = {
+            amount: appointmentData.amount * 100,
+            currency: process.env.CURRENCY,
+            receipt: appointmentId
+        } // By using these options we will create the order on razorpay
+    
+        const order = await razorpayInstance.orders.create(options);
+    
+        res.json({success: true, order})
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message}) 
+    }
+
+}
+
+
+export {registerUser,loginUser,getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, paymentRazorpay};
