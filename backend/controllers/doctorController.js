@@ -27,4 +27,6 @@ const doctorList = async (req,res) => {
     }
 }
 
+
+
 export {changeAvailability,doctorList};
